@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--   Configuraciones para los ejercicios -ejercicio1,ejercicio3
+ con radioButtons,checkbox de Logearse usuario   -->
+    <dimen name="basic_padding">30dp</dimen>
+    <dimen name="separacion">15dp</dimen>
+</resources>

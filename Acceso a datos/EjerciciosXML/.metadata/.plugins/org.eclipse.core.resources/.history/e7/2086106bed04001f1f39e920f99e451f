@@ -1,0 +1,573 @@
+package proyecto;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Scanner;
+
+import org.basex.core.cmd.Find;
+import org.basex.examples.api.BaseXClient;
+import org.bson.Document;
+import org.bson.types.ObjectId;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.*;
+import java.io.*;
+
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.result.UpdateResult;
+
+import static com.mongodb.client.model.Filters.gt;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Updates.inc;
+import static com.mongodb.client.model.Updates.set;
+import static com.mongodb.client.model.Updates.addToSet;
+
+public class App {
+	static Scanner sc;
+	static MongoClient mongoClient;
+	static MongoDatabase database=null;
+	static BaseXClient session=null;
+	private static MongoCollection<Document> coleccion=null;
+	private static String idClienteSesion=null;
+	private static Document docClienteSesion=null;
+	
+	public static void main(String[] args) {
+		sc=new Scanner(System.in);
+		int optionMenu=0;
+		do {
+			optionMenu=menu();
+			switch (optionMenu) {
+			
+			//CONSULTAS EN BASE DE DATOS XML
+			case 1:
+				bdXML();
+				break;
+				
+			//CONSULTAS EN BASE DE DATOS MONGODB
+			case 2:
+				bdMongo();
+				break;
+			
+			//SALIMOS
+			case 3:
+				System.out.println("SALIENDO..");
+				break;
+			default:
+				System.out.println("Debes escribir un número entre el 1 y el 3.");
+				break;
+			}
+		} while (optionMenu!=3);
+		
+	}
+	private static void bdMongo() {
+		mongoClient=MongoClients.create("mongodb+srv://paulasotelo99:abc123.@cluster0.rh5crpr.mongodb.net/");
+		database=mongoClient.getDatabase("tienda");
+		
+		int option;
+		do {
+			option=mostrarMenuMongo();
+			switch (option) {
+			case 1:
+				nuevoCliente();
+				break;
+			case 2:
+				inicioSesion();
+				break;
+			case 3:
+				borrarCliente();
+				break;
+			case 4:
+				modificarCliente();
+				break;
+			case 5:
+				anhadirProductoCarrito();
+				break;
+			case 6:
+				mostrarCarrito();
+				break;
+			case 7:
+				mostrarPedidos();
+				break;
+			case 8:
+				pagarCarrito();
+				break;
+			case 9:
+				totalCarritosCliente();
+				break;
+			case 10:
+				totalPedidosCliente();
+				break;
+			case 11:
+				break;
+			default:
+				break;
+			}
+			
+		} while (option!=11);
+		
+	}
+	private static void totalPedidosCliente() {
+		//Consulta 2: Teniendo en cuenta todos los clientes, obtener el total gastado por cada cliente en todos sus pedidos.
+		
+	}
+	private static void totalCarritosCliente() {
+		//Consulta 1: Teniendo en cuenta todos los clientes, calcular el total de la compra para cada carrito 
+		//y listar los resultados ordenados por el total de forma ascendente. (No es necesario tener en cuenta
+		//la multiplicación de precio_unitario * cantidad con sumar los precio_unitario es suficiente)
+		
+	}
+	private static void pagarCarrito() {
+		//Pagar el carrito de un cliente: se mostrará el carrito junto con una orden de confirmación.
+		//Si la orden es positiva se pasarán todos los productos a formar parte de un nuevo pedido.
+		
+	}
+	private static void mostrarPedidos() {
+		//.Mostrar pedidos del cliente.
+		seleccionarColeccion("pedidos");
+
+		FindIterable<Document> pedidosCliente=coleccion.find(eq("cliente_id",idClienteSesion));
+		
+		if (!pedidosCliente.iterator().hasNext()) {
+			System.out.println("El cliente actual no tiene elementos agregados al carrito");
+		}else{
+			for (Document document : pedidosCliente) {
+				System.out.println(document.toString());
+			}
+		}
+		
+	}
+	private static void mostrarCarrito() {//FALTA PRECIO TOTAL Y QUE SALGA BONITO
+		//.Mostrar el carrito del cliente. Se mostrarán los datos del carrito y el precio total
+		seleccionarColeccion("carritos");
+
+		FindIterable<Document> carritoCliente=coleccion.find(eq("cliente_id",idClienteSesion));
+		
+		if (!carritoCliente.iterator().hasNext()) {
+			System.out.println("El cliente actual no tiene elementos agregados al carrito");
+		}else{
+			for (Document document : carritoCliente) {
+				System.out.println(document.toString());
+			}
+		}
+	}
+	private static void anhadirProductoCarrito() {
+		//Añadir producto al carrito del cliente. Se pedirá: id del producto y cantidad, 
+		//así como si se desea seguir introduciendo más productos.
+		
+		seleccionarColeccion("carritos");
+		int idProducto=pedirInt("Introduce el id del producto a añadir");
+		int cantidad=pedirInt("Introduce la cantidad del producto a añadir");
+		
+		//Conectamos con BaseX para acceder a los productos
+		conectarBaseX();
+		
+		String query = "for $producto in /productos/producto "
+				+ "where $producto/id="+idProducto+" "
+				+ "return $producto";
+		
+		BaseXClient.Query baseXQuery;
+		String productosXML = null;
+		try {
+			//Ejecutamos la query para obtener los productos
+			baseXQuery = session.query(query);
+		    productosXML = baseXQuery.execute();
+			 // Parsear el resultado XML de la consulta de BaseX
+		    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		    DocumentBuilder builder = factory.newDocumentBuilder();
+		    InputSource is = new InputSource(new StringReader(productosXML));
+		    org.w3c.dom.Document doc = (org.w3c.dom.Document) builder.parse(is);
+
+		    // Obtener el elemento producto
+		    NodeList productos = doc.getElementsByTagName("producto");
+		    Node producto = productos.item(0); // Si esperas solo un producto
+			
+			int id =  0;
+			String nombre = null;
+			Double precio = null;
+			int disponibilidad = 0;
+			Document docProducto;
+			
+			ArrayList<Document> listaProductos = new ArrayList<>();
+			
+			//Comprobamos que existe el producto
+			if(producto.equals(null)) {
+				System.out.println("No existe ese producto, introduce otro.");
+			}else {
+				if (producto.getNodeType() == Node.ELEMENT_NODE) {
+	                Element elementoProducto = (Element) producto;
+	                // Extraer los datos del producto del XML
+	                id = Integer.parseInt(elementoProducto.getElementsByTagName("id").item(0).getTextContent());
+	                nombre = elementoProducto.getElementsByTagName("nombre").item(0).getTextContent();
+	                //String descripcion = elementoProducto.getElementsByTagName("descripcion").item(0).getTextContent();
+	                precio = Double.parseDouble(elementoProducto.getElementsByTagName("precio").item(0).getTextContent());
+	                disponibilidad = Integer.parseInt(elementoProducto.getElementsByTagName("disponibilidad").item(0).getTextContent());
+	                //String categoria = elementoProducto.getElementsByTagName("categoria").item(0).getTextContent();
+	                //String fabricante = elementoProducto.getElementsByTagName("fabricante").item(0).getTextContent();       
+	            }
+	            
+	            if(cantidad>disponibilidad) {
+	            	System.out.println("No hay suficiente stock de este producto");
+	            }else {
+	            	//Creamos el docProducto 
+	            	docProducto=new Document();
+	            	docProducto.append("producto_id", id)
+	            	.append("nombre", nombre)
+	            	.append("cantidad", cantidad)
+	            	.append("precio_unitario", precio);
+	            	
+	            	//Buscamos si el cliente tiene algún carrito
+	            	FindIterable<Document> carritoCliente=coleccion.find(eq("cliente_id",idClienteSesion));
+	            	if (!carritoCliente.iterator().hasNext()) {
+	        			//Si no tiene carrito creamos uno
+	            		Document docCarrito=new Document();
+	            		docCarrito.append("cliente_id", idClienteSesion);
+	            		listaProductos.add(docProducto);
+	            		docCarrito.append("productos", listaProductos);
+	            		
+	            		System.out.println("Se introdujo el procuto");
+	        		}else{
+	        			UpdateResult ur=coleccion.updateOne(eq("cliente_id",idClienteSesion), addToSet("productos",docProducto));
+	        			if(ur.getModifiedCount() > 0){
+	                        System.out.println("Actualizacion correcta. " + ur.getModifiedCount() + " documentos actualizados.");
+	                    }else{
+	                        System.out.println("No se ha actualizado ningún documento");
+	                    }
+	        		}      	
+	            }
+			}           
+		} catch (IOException | ParserConfigurationException | SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+		
+	}
+	private static void modificarCliente() {
+		//Modificar el valor de un campo de la información del cliente.
+		seleccionarColeccion("clientes");
+		
+		HashMap<String, String> parametrosCliente = new HashMap<>();
+        parametrosCliente.put("nombre", "string");
+        parametrosCliente.put("_id", "string");
+        parametrosCliente.put("direccion", "string");
+        Boolean option=false;
+        do {
+        	String campo=pedirString("Que campo deseas modificar?(nombre/_id/direccion)");
+        	
+        	Object key=parametrosCliente.get(campo);
+        	if(key.equals(null)) {
+        		option=false;
+        	}else  {
+        		option=true;
+        		String valor_campo=pedirString("Introduce el nuevo valor de "+campo+":");
+                UpdateResult ur = coleccion.updateOne(new Document("_id", idClienteSesion), set(campo, valor_campo));
+                
+                if(ur.getModifiedCount() > 0){
+                    System.out.println("Actualizacion correcta. " + ur.getModifiedCount() + " documentos actualizados.");
+                }else{
+                    System.out.println("No se ha actualizado ningún documento");
+                }
+			}
+            
+		} while (option==false);
+	
+	}
+	private static void borrarCliente() {
+		//Borrar un cliente.
+		seleccionarColeccion("clientes");
+		int id=pedirInt("Introduce el id del cliente a borrar");
+	}
+	private static void inicioSesion() {
+		//Identificar cliente según el email. Dado el email se obtendrá el ID del cliente de forma que las siguientes consultas
+		//se harán sobre ese cliente. Para cambiar de cliente se tendrá que volver a seleccionar esta opción.
+		seleccionarColeccion("clientes");
+		String email=pedirString("Introduce email para identificarte");
+		
+		FindIterable<Document> iterDoc=coleccion.find(eq("_id",email));
+		if (!iterDoc.iterator().hasNext()) {
+		    System.out.println("No se encontraron clientes registrados con el correo electrónico: " + email);
+		} else {
+		    for (Document document : iterDoc) {
+		        System.out.println(document);
+		        idClienteSesion=email;
+		        //docClienteSesion=document;
+		        System.out.println("Sesion iniciada con "+email);
+		    }
+		}
+	}
+	private static void nuevoCliente() {
+		//Crear un nuevo cliente (no podrá haber email repetidos)
+		seleccionarColeccion("clientes");
+		
+		HashMap<String, String> parametrosCliente = new HashMap<>();
+        parametrosCliente.put("nombre", "string");
+        parametrosCliente.put("_id", "string");
+        parametrosCliente.put("direccion", "string");
+        
+        Document docCliente=crearDocumento(parametrosCliente);
+        try {
+        	coleccion.insertOne(docCliente);
+		} catch (Exception e) {
+			System.out.println("El correo introducido ya está en uso");
+		}
+		
+	}
+	 private static void seleccionarColeccion(String nombreColeccion){
+	       if(database == null)
+	            database = mongoClient.getDatabase("tienda");
+	       try{
+	           coleccion = database.getCollection(nombreColeccion);
+	       }catch (Exception e){
+	           database.createCollection(nombreColeccion);
+	           coleccion = database.getCollection(nombreColeccion);
+	       }
+	 }
+	 private static Document crearDocumento(HashMap<String, String> parametros) {
+	        Document documento = new Document();
+	        for (Map.Entry<String, String> entry : parametros.entrySet()){
+	            if(entry.getValue().equalsIgnoreCase("int")){
+	                documento.append(entry.getKey(), pedirInt("Introduzca el valor del campo: " + entry.getKey()));
+
+	            }else if(entry.getValue().equalsIgnoreCase("string")){
+	                documento.append(entry.getKey(), pedirString("Introduzca el valor del campo: " + entry.getKey()));
+
+	            }else if(entry.getValue().equalsIgnoreCase("double")){
+	                documento.append(entry.getKey(), pedirDouble("Introduzca el valor del campo: " + entry.getKey()));
+
+	            }else if(entry.getValue().equalsIgnoreCase("boolean")){
+	                String entrega = pedirString("Introduzca el valor del campo: " + entry.getKey());
+	                documento.append(entry.getKey(), entrega.equalsIgnoreCase("si"));
+	            }
+	        }
+	        return documento;
+	 }
+	public static int mostrarMenuMongo() {
+		while (true) {
+			try {
+				System.out.println("1.Crear un nuevo cliente (no podrá haber email repetidos).\r\n"
+						+ "2.Identificar cliente según el email. Dado el email se obtendrá el ID del cliente de forma que las siguientes consultas \r\n"
+						+ " se harán sobre ese cliente. Para cambiar de cliente se tendrá que volver a seleccionar esta opción.\r\n"
+						+ "3.Borrar un cliente.\r\n"
+						+ "4.Modificar el valor de un campo de la información del cliente.\r\n"
+						+ "5.Añadir producto al carrito del cliente. Se pedirá: id del producto y cantidad, así como si se desea seguir introduciendo \r\n"
+						+ " más productos.\r\n"
+						+ "6.Mostrar el carrito del cliente. Se mostrarán los datos del carrito y el precio total.\r\n"
+						+ "7.Mostrar pedidos del cliente.\r\n"
+						+ "8.Pagar el carrito de un cliente: se mostrará el carrito junto con una orden de confirmación.\r\n "
+						+ "Si la orden es positiva se pasarán todos los productos a formar parte de un nuevo pedido.\r\n"
+						+ "9.Consulta 1: Teniendo en cuenta todos los clientes, calcular el total de la compra para cada carrito \r\n"
+						+ " y listar los resultados ordenados por el total de forma ascendente. (No es necesario tener en cuenta \r\n"
+						+ " la multiplicación de precio_unitario * cantidad con sumar los precio_unitario es suficiente).\r\n"
+						+ "10.Consulta 2: Teniendo en cuenta todos los clientes, obtener el total gastado por cada cliente en todos sus pedidos.\r\n"
+						+ "11.Atrás");
+		
+						return sc.nextInt();
+			}catch (Exception e) {
+			// TODO: handle exception
+			}
+		}
+	}
+	public static int menu() {
+		while (true) {
+			try {
+				System.out.println("1. CONSULTAS BASE DE DATOS XML\r\n"
+						+ "2. CONSULTAS BASE DE DATOS MONGODB\r\n"
+						+ "3. SALIR");
+				return sc.nextInt();
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+		}
+	}
+	
+	public static int mostrarMenuXML() {
+		
+		while (true) {
+			try {
+				System.out.println("1.Modificar el valor de un elemento de un XML según un ID.\r\n"
+						+ "2.Eliminar un producto según su ID.\r\n"
+						+ "3.Consulta 1: Obtener todos los productos por orden alfabético del nombre \r\n"
+						+ "(se mostrarán los siguientes campos: id, nombre, precio, disponibilidad y categoria).\r\n"
+						+ "4.Consulta 2: Listar productos con una disponibilidad mayor a X unidades \r\n"
+						+ "(se mostrarán los siguientes campos: id, nombre, precio, disponibilidad y categoria).\r\n"
+						+ "5.Consulta 3: Mostrar la categoría, el nombre y el precio del producto más caro para cada categoría.\r\n"
+						+ "En el caso de haber varios se devolverá el de la primera posición.\r\n"
+						+ "6.Consulta 4: Mostrar el nombre de los productos y su fabricante para aquellos productos cuya descripción \r\n"
+						+ "incluya una subcadena. Se deberá mostrar la información ordenada según el nombre del fabricante de forma inversa al alfabeto.\r\n"
+						+ "7.Consulta 5: Mostrar la cantidad total de productos en cada categoría (teniendo en cuenta el elemento disponibilidad)\r\n"
+						+ " y calcular el porcentaje que representa respecto al total de productos.\r\n"
+						+ "8. Atrás ");
+				return sc.nextInt();
+			}catch (Exception e) {
+				// TODO: handle exception
+			}
+		}		
+		
+	}
+	public static void bdXML() {
+		//Nos conectamos a BaseX y abrimos nuestra base de datos 'productos'
+		try(BaseXClient session=new BaseXClient("localhost",1984, "admin", "abc123")) {
+			session.execute("open productos");
+			int consulta=0;
+			do {
+				consulta=mostrarMenuXML(); //Mostramos el menu 
+				switch (consulta) {
+				case 1://Modificar el valor de un elemento de un XML según un ID
+					
+					break;
+				case 2://.Eliminar un producto según su ID.
+					
+					break;
+				case 3://Consulta 1: Obtener todos los productos por orden alfabético del nombre
+					//(se mostrarán los siguientes campos: id, nombre, precio, disponibilidad y categoria)
+					
+					ejecutarConsulta(session, 
+							"for $producto in /productos/producto "
+							+ "order by $producto/nombre "
+							+ "return <producto>\"\r\n"
+							+ "	{$producto/id}\"\r\n"
+							+ "	{$producto/nombre}\"\r\n"
+							+ "	{$producto/precio}\"\r\n"
+							+ "	{$producto/disponibilidad}\"\r\n"
+							+ "	{$producto/categoria}\"\n"
+							+ "</producto>");
+					break;
+				case 4://Consulta 2: Listar productos con una disponibilidad mayor a X unidades 
+					//(se mostrarán los siguientes campos: id, nombre, precio, disponibilidad y categoria)
+					try {
+						System.out.print("Introduce el numero de unidades:");
+						int unidades=sc.nextInt();
+						ejecutarConsulta(session,
+								"for $producto in /productos/producto "
+								+ "where number($producto/disponibilidad)>"+unidades+" "
+								+ "return <producto>\"\r\n"
+								+ "	{$producto/id}\"\r\n"
+								+ "	{$producto/nombre}\"\r\n"
+								+ "	{$producto/precio}\"\r\n"
+								+ "	{$producto/disponibilidad}\"\r\n"
+								+ "	{$producto/categoria}\"\n"
+								+ "</producto>");
+						
+					} catch (Exception e) {
+						System.out.println("Valor incorrecto");
+					}
+					
+					break;
+				case 5://Consulta 3: Mostrar la categoría, el nombre y el precio del producto más caro para cada categoría.
+					//En el caso de haber varios se devolverá el de la primera posición.
+					ejecutarConsulta(session, 
+							"for $categoria in distinct-values(/productos/producto/categoria) "
+							+ "let $productos := /productos/producto[categoria=$categoria] "
+							+ "let $precio_max := max($productos/precio) "
+							+ "let $nombre_producto := $productos[precio=$precio_max] "
+							+ "return <producto>\"\r\n"
+							+ "	<categoria>{$categoria}</categoria>\"\r\n"
+							+ " 	<nombre>{$nombre_producto/nombre/text()}</nombre>\"\r\n"
+							+ " 	<precio>{$precio_max}</precio>\"\r\n"
+							+ "</producto>");
+					
+					break;
+				case 6://Consulta 4: Mostrar el nombre de los productos y su fabricante para aquellos productos cuya descripción
+					//incluya una subcadena. Se deberá mostrar la información ordenada según el nombre del fabricante de forma inversa al alfabeto
+					String cadena=pedirString("Introduce una subcadena:");
+					ejecutarConsulta(session,
+							"for $producto in /productos/producto "
+							+ "where contains($producto/descripcion,'" + cadena + "') "
+							+ "order by $producto/fabricante descending "
+							+ "return <producto>\"\r\n"
+							+ "	{$producto/nombre}\"\r\n"
+							+ "	{$producto/fabricante}\"\r\n"
+							+ "</producto>");
+					
+					break;
+				case 7://7.Consulta 5: Mostrar la cantidad total de productos en cada categoría 
+					//(teniendo en cuenta el elemento disponibilidad)
+					//y calcular el porcentaje que representa respecto al total de productos.
+					
+					ejecutarConsulta(session, 
+						    "for $categoria in distinct-values(/productos/producto/categoria) "
+						    + "let $productos := /productos/producto[categoria = $categoria] "
+						    + "let $cantidad_total := sum($productos/disponibilidad) "
+						    + "let $total_productos := sum(/productos/producto/disponibilidad) "
+						    + "let $porcentaje := ($cantidad_total * 100) div $total_productos "
+						    + "return <producto>\"\r\n"
+						    + "	<categoria>{$categoria}</categoria>\"\r\n"
+						    + "	<cantidad_total>{$cantidad_total}</cantidad_total>\"\r\n"
+						    + "	<porcentaje>{$porcentaje}</porcentaje>\"\r\n"
+						    + "</producto>");
+
+					
+					break;
+				case 8:
+					session.close();
+					break;
+				default:
+					break;
+				}
+			} while (consulta!=8);
+		} catch (Exception e) {}
+	}
+	
+	
+	public static void conectarBaseX() {
+		try {
+			session=new BaseXClient("localhost",1984, "admin", "abc123");
+			session.execute("open productos");
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+
+	public static String pedirString(String texto) {
+		while (true) {
+			try {
+				System.out.println(texto);
+				return sc.next();
+			} catch (Exception e) {}
+			
+		}
+	}
+	 private static int pedirInt(String mensaje) {
+	        System.out.println(mensaje);
+	        while(true) {
+	            try {
+	                return sc.nextInt();
+	            } catch (Exception ignored) {
+	            }
+	        }
+	 }
+	 private static double pedirDouble(String mensaje) {
+	        System.out.println(mensaje);
+	        while(true) {
+	            try {
+	                return Double.parseDouble(sc.next());
+	            } catch (Exception ignored) {
+	            }
+	        }
+	    }
+	public static void ejecutarConsulta(BaseXClient sesion, String consulta) {
+		try (BaseXClient.Query query=sesion.query(consulta)){
+			while(query.more()) {
+				System.out.println(query.next());
+			}
+			
+		} catch (Exception e) {
+			System.out.println("Consulta incorrecta:\n" + e.getStackTrace());
+		}
+	}
+
+}

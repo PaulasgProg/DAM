@@ -1,0 +1,133 @@
+use tienda
+db.dropDatabase()
+db.createCollection(“clientes”);
+db.createCollection(“carrito”);
+db.createCollection(“pedido”);
+db.clientes.insertMany([
+  {
+    "_id": "cliente1@gmail.com",
+    "nombre": "Paula Sotelo",
+    "direccion": "Cangas do Morrazo n1"
+  },
+  {
+    "_id": "cliente2@gmail.com",
+    "nombre": "Juan Alberto",
+    "direccion": "Santiago n34"
+  },
+  {
+    "_id": "cliente3@gmail.com",
+    "nombre": "Andrea Fernandez",
+    "direccion": "Gran Via n3, Vigo"
+  }
+]);
+
+db.carrito.insertMany([
+  {
+    "_id": ObjectId(),
+    "cliente_id": "cliente1@gmail.com",
+    "productos": [
+      {
+        "producto_id": 1,
+        "nombre": "Laptop HP Pavilion",
+        "cantidad": 2,
+        "precio_unitario": 799.99
+      },
+      {
+        "producto_id": 3,
+        "nombre": "Tablet Lenovo Tab M10",
+        "cantidad": 1,
+        "precio_unitario": 199.99
+      }
+    ]
+  },
+  {
+    "_id": ObjectId(),
+    "cliente_id":"cliente3@gmail.com",
+    "productos": [
+      {
+        "producto_id": 2,
+        "nombre": "Smartphone Samsung Galaxy S21",
+        "cantidad": 1,
+        "precio_unitario": 899.99
+      },
+      {
+        "producto_id": 4,
+        "nombre": "Auriculares Inalámbricos Sony WH-1000XM4",
+        "cantidad": 2,
+        "precio_unitario": 299.99
+      }
+    ]
+  },
+  {
+    "_id": ObjectId(),
+    "cliente_id": "cliente2@gmail.com",
+    "productos": [
+      {
+        "producto_id": 1,
+        "nombre": "Laptop HP Pavilion",
+        "cantidad": 1,
+        "precio_unitario": 799.99
+      },
+      {
+        "producto_id": 4,
+        "nombre": "Auriculares Inalámbricos Sony WH-1000XM4",
+        "cantidad": 2,
+        "precio_unitario": 299.99
+      }
+    ]
+  }
+]);
+
+db.pedidos.insertMany([
+{
+  "_id": ObjectId(),
+  "cliente_id": "cliente2@gmail.com",
+  "productos": [
+    {
+      "producto_id": 1,
+      "nombre": "Laptop HP Pavilion",
+      "cantidad": 2,
+      "precio_unitario": 799.99
+    }
+  ],
+  "total": 1599.98,
+  "fecha_pedido": ISODate("2023-01-01T12:30:00.000Z")
+},
+{
+  "_id": ObjectId(),
+  "cliente_id": "cliente1@gmail.com",
+  "productos": [
+    {
+      "producto_id": 3,
+      "nombre": "Tablet Lenovo Tab M10",
+      "cantidad": 1,
+      "precio_unitario": 199.99
+    },
+    {
+      "producto_id": 2,
+      "nombre": "Smartphone Samsung Galaxy S21",
+      "cantidad": 1,
+      "precio_unitario": 899.99
+
+		}
+  ],
+  "total": 1099.98,
+  "fecha_pedido": ISODate("2023-01-01T12:30:00.000Z")
+},
+  {
+  "_id": ObjectId(),
+  "cliente_id":"cliente3@gmail.com",
+  "productos": [
+    {
+      "producto_id": 1,
+      "nombre": "Laptop HP Pavilion",
+      "cantidad": 3,
+      "precio_unitario": 799.99
+    }
+  ],
+  "total": 2399.77,
+  "fecha_pedido": ISODate("2023-01-01T12:30:00.000Z")
+}
+
+])
+

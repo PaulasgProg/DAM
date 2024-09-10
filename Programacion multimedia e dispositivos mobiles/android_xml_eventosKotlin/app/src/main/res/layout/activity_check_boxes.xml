@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingHorizontal="30dp"
+    android:paddingVertical="160dp"
+    tools:context=".checkboxes.Ej05CheckBoxes1Activity">
+
+    <CheckBox
+        android:id="@+id/cb_fresa"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorTertiaryFixedDim"
+        android:padding="10dp"
+        android:text="Fresa"
+        app:layout_constraintEnd_toStartOf="@id/cb_vainilla"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <CheckBox
+        android:id="@+id/cb_vainilla"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/holo_orange_light"
+        android:padding="10dp"
+        android:text="Vainilla"
+        app:layout_constraintEnd_toStartOf="@id/cb_pistacho"
+        app:layout_constraintStart_toEndOf="@id/cb_fresa"
+        app:layout_constraintTop_toTopOf="@id/cb_fresa" />
+
+    <CheckBox
+        android:id="@+id/cb_pistacho"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pistacho"
+        android:padding="10dp"
+        android:background="@android:color/holo_green_light"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/cb_vainilla"
+        app:layout_constraintTop_toTopOf="@id/cb_vainilla" />
+
+    <TextView
+        android:id="@+id/tv_helado"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cb_vainilla" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

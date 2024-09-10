@@ -1,0 +1,83 @@
+type Mutation{
+    cargarDatos : String
+    asignarDepartamento (idDept : Float, idEmp : Float): DeptoDTO
+    modificarJefe (idDept : Float, idEmp : Float): DeptoDTO
+
+    crearDepartamento(departamento : DeptoInput): String
+    modificarDepartamento(id : Float, departamentoActualizado : DeptoInput) : Depto
+    crearEmpleado(empleado : EmpInput) : String
+    modificarEmpleado(id : Float, empleadoActualizado : EmpInput) : Emp
+}
+
+type Query{
+    consulta1(nomDep1 : String, nomDep2 : String) : [DeptoDTO]
+    consulta2(datos: Consulta2DTO) : [String]
+    consulta3(puesto : String) : [Consulta3DTO]
+    consulta4 : [String]
+    consulta5(id : Float) : [EmpDTO]
+
+    obtenerDepartamentos : [Depto]
+    obtenerDepartamentoPorId(id : Float) : Depto
+    obtenerEmpleados : [Emp]
+    obtenerEmpleadoPorId(id : Float) : Emp
+}
+
+type DeptoDTO{
+    numdep : Float,
+    nomdep : String,
+    localidad: String,
+    idJefe : Float
+}
+
+input Consulta2DTO{
+    letra : String,
+    salario: Float,
+    idDepartamento : Float
+}
+
+type Consulta3DTO{
+    nombre : String,
+    fecha : String
+}
+
+type Depto{
+    numdep : Float,
+    nomdep : String,
+    localidad : String
+}
+
+input DeptoInput{
+    numdep : Float,
+    nomdep : String,
+    localidad : String
+}
+
+type Emp{
+    numemp : Float,
+    nomemp : String,
+    puesto : String,
+    feccont : String,
+    sal : Float,
+    comision : Float,
+    depto : Depto,
+    deptoJefe : Depto
+}
+
+input EmpInput{
+    numemp : Float,
+    nomemp : String,
+    puesto : String,
+    feccont : String,
+    sal : Float,
+    comision : Float
+}
+
+type EmpDTO{
+    numemp : Float,
+    nomemp : String,
+    puesto : String,
+    feccont : String,
+    sal : Float,
+    comision : Float,
+    iddepto : Float,
+}

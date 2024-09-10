@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingVertical="@dimen/basic_padding">
+
+    <TextView
+        android:id="@+id/textView04"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Teclea usuario:"
+        android:layout_marginEnd="@dimen/separacion"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintBottom_toBottomOf="@+id/etNombre04"
+        app:layout_constraintEnd_toStartOf="@+id/etNombre04"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/etNombre04" />
+
+    <EditText
+        android:id="@+id/etNombre04"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="7"
+        android:hint="Nombre"
+        android:inputType="textPersonName"
+        android:minHeight="48dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textView04"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <RadioGroup
+        android:id="@+id/rgPerfil"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/separacion"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="@+id/textView04"
+        app:layout_constraintTop_toBottomOf="@+id/etNombre04">
+
+        <RadioButton
+            android:id="@+id/rbDba"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/separacion"
+            android:text="@string/dba" />
+
+        <RadioButton
+            android:id="@+id/rbDev"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dev" />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/button04"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="44dp"
+        android:backgroundTint="@color/teal_700"
+        android:text="@string/boton_hola"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rgPerfil" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

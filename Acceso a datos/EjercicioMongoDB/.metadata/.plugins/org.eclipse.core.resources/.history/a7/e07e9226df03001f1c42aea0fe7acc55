@@ -1,0 +1,439 @@
+package ejercicio612;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.TreeMap;
+
+import org.bson.Document;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.PojoCodecProvider;
+import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
+
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Accumulators;
+import com.mongodb.client.model.Aggregates;
+import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
+
+import pojos.Carrera;
+import pojos.Equipo;
+import pojos.Piloto;
+
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Sorts.descending;
+import static com.mongodb.client.model.Updates.inc;
+import static com.mongodb.client.model.Updates.set;
+
+import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
+import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
+
+public class App {
+	
+	static Scanner sc;
+	static MongoClient mongoClient;
+	static MongoDatabase database=null;
+
+	public static void main(String[] args) {
+		sc = new Scanner(System.in).useDelimiter("\n");
+		
+		//CREAMOS POJOS
+		//ESTABLECEMOS CONEXION
+		//1. CREAMOS CADENA DE CONEXION
+		ConnectionString connectionString = new ConnectionString("mongodb://localhost:27017");
+		
+		//2.Configuración del Codec usando la clase CodecRegistry para que maneje la conversión entre BSON y POJO
+		CodecRegistry pojoCodecRegistry = fromProviders(PojoCodecProvider.builder().automatic(true).build());
+		
+		//3.Añadimos al Codec anterior el Registro Codec por defecto que permita manejar la mayoría de tipos de Java (Boolean, Double, Strings, etc):
+		CodecRegistry codecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), pojoCodecRegistry);
+		
+		//4.Enlazar todas las configuraciones anteriores con el conector de MongoDB
+		MongoClientSettings clientSettings = MongoClientSettings.builder()
+                .applyConnectionString(connectionString)
+                .codecRegistry(codecRegistry)
+                .build();
+		//5.Crear la conexión con MongoDB
+		mongoClient=MongoClients.create(clientSettings);
+		
+		int option;
+		do {
+			option=pedirInt("1.Crear una base de datos llamada F1DB\r\n"
+					+ "2.Crear una colección equipos que almacene: el nombre, el país y el año de fundación \r\n"
+					+ "  de los equipos de F1 y añade dos ejemplos\r\n"
+					+ "3.Crea una colección pilotos que almacene: \r\n "
+					+ "  el nombre, la nacionalidad, el nombre del equipo y los puntos de un piloto de F1 y añade dos ejemplos\r\n"
+					+ "4.Crea una colección carreras que almacene información sobre carreras de F1.\r\n"
+					+ " Se desea almacenar: nombre del gran premio, la fecha y el ganador. Añade dos ejemplos.\r\n"
+					+ "5.Consulta 1: Muestra todos los equipos de Formula 1.\r\n"
+					+ "6.Consulta 2: Muestra todos los pilotos del equipo Mercedes\r\n"
+					+ "7.Consulta 3: Muestra la información de una carrera concreta.\r\n"
+					+ "8.Consulta 4: Muestra todos los pilotos ordenados por puntos de mayor a menor.\r\n"
+					+ "9.Consulta 5: Actualiza los puntos de un piloto después de ganar la carrera (una victoria supone ganar 25 puntos)\r\n"
+					+ "10.Consulta 6: Elimina un equipo y todos sus pilotos\r\n"
+					+ "11.Consulta 7: Muestra todos los pilotos que han ganado al menos una carrera\r\n"
+					+ "12.Consulta 8: Suma los puntos de todos los pilotos\r\n"
+					+ "13.Consulta 9: Actualiza la fecha de realización de un gran premio\r\n"
+					+ "14.Consulta 10: Muestra los equipos fundados antes de un determinado año\r\n"
+					+ "15.Consulta 11: Incrementa los puntos de todos los pilotos en 5 puntos\r\n"
+					+ "16.Consulta 12: Muestra la cantidad total de puntos por nacionalidad de los pilotos\r\n"
+					+ "17.Salir");
+			
+			switch (option) {
+			case 1://Crear una base de datos llamada F1DB\
+				crearBaseDatos();
+				break;
+			case 2://Crear una colección equipos que almacene: el nombre, el país y el año de fundación
+				crearColeccion();
+				break;
+			case 3://.Crea una colección pilotos que almacene:
+				//el nombre, la nacionalidad, el nombre del equipo y los puntos de un piloto de F1 y añade dos ejemplos
+				crearColeccionPilotos();
+				break;
+			case 4://Crea una colección carreras que almacene información sobre carreras de F1.\r\n"
+				//Se desea almacenar: nombre del gran premio, la fecha y el ganador. Añade dos ejemplos.
+				crearColeccionCarreras();
+				break;
+			case 5://Consulta 1: Muestra todos los equipos de Formula 1
+				mostrarEquiposF1();
+				break;
+			case 6://Consulta 2: Muestra todos los pilotos del equipo Mercedes
+				mostrarPilotosMercedes();
+				break;
+			case 7://Consulta 3: Muestra la información de una carrera concreta.
+				mostrarInfoCarrera();
+				break;
+			case 8://.Consulta 4: Muestra todos los pilotos ordenados por puntos de mayor a menor.
+				mostrarPilotosPuntos();
+				break;
+			case 9://Consulta 5: Actualiza los puntos de un piloto después de ganar la carrera (una victoria supone ganar 25 puntos)
+				actualizarPuntos();
+				break;
+			case 10://Consulta 6: Elimina un equipo y todos sus pilotos
+				eliminaEquipoyPilotos();
+				break;
+			case 11://Consulta 7: Muestra todos los pilotos que han ganado al menos una carrera
+				muestraPilotosCarrera();
+				break;
+			case 12://Consulta 8: Suma los puntos de todos los pilotos\r\n"
+				sumarPuntosPilotos();
+				break;
+				
+			case 13://"13.Consulta 9: Actualiza la fecha de realización de un gran premio\r\n"
+				actualizaFecha();
+				break;
+			case 14://+ "14.Consulta 10: Muestra los equipos fundados antes de un determinado año\r\n"
+				equiposFundadosPorAño();
+				break;
+			case 15://+ "15.Consulta 11: Incrementa los puntos de todos los pilotos en 5 puntos\r\n"
+				inccrementaPuntosPilotos();
+				break;
+			case 16://+ "16.Consulta 12: Muestra la cantidad total de puntos por nacionalidad de los pilotos\r\n"
+				totalPuntosPorNacionalidad();
+				break;
+			case 17://+ "17.Salir"
+				break;
+			default:
+				break;
+			}
+		}while(option!=17);
+			
+	}
+	
+	private static void totalPuntosPorNacionalidad() {
+		crearBaseDatos();
+		MongoCollection<Piloto> coleccionPiloto = database.getCollection("pilotos", Piloto.class);
+
+        TreeMap<String, Integer> puntos = new TreeMap<String, Integer>();
+
+        for (Piloto piloto: coleccionPiloto.find())
+            if(puntos.containsKey(piloto.getNacionalidad())){
+                int puntosPiloto = puntos.get(piloto.getNacionalidad());
+                puntos.put(piloto.getNacionalidad(), puntosPiloto + piloto.getPuntos());
+            }else{
+                puntos.put(piloto.getNacionalidad(), piloto.getPuntos());
+            }
+
+        for (Map.Entry<String, Integer> entry: puntos.entrySet())
+            System.out.println("Nacionalidad: " + entry.getKey() + " Puntos: " + entry.getValue());
+	}
+
+
+	private static void inccrementaPuntosPilotos() {
+		//Incrementa los puntos de todos los pilotos en 5 puntos
+		crearBaseDatos();
+		MongoCollection<Piloto> coleccionPiloto = database.getCollection("pilotos", Piloto.class);
+
+        int cantidadAumentar = pedirInt("Introduzca la cantidad a aumentar");
+
+        UpdateResult ur = coleccionPiloto.updateMany(new Document(), inc("puntos", cantidadAumentar));
+
+        if(ur.getModifiedCount() > 0){
+            System.out.println("Actualizacion correcta. " + ur.getModifiedCount() + " documentos actualizados.");
+        }else{
+            System.out.println("No se ha actualizado ningún documento");
+        }
+		
+	}
+
+
+	private static void equiposFundadosPorAño() {
+		//.Consulta 10: Muestra los equipos fundados antes de un determinado año
+		crearBaseDatos();
+		MongoCollection<Equipo> coleccionEquipos=database.getCollection("equipos",Equipo.class);
+		
+		int anho=pedirInt("Introduce un año");
+		for (Equipo equipo : coleccionEquipos.find(lt("fundacion",anho))) {
+			System.out.println(equipo.toString());
+		}
+	}
+
+
+	private static void actualizaFecha() {
+		// .Consulta 9: Actualiza la fecha de realización de un gran premio
+		crearBaseDatos();
+        String nombrePremio=pedirString("Introduce el nombre del premio");
+        MongoCollection<Carrera> coleccionPilotos=database.getCollection("carreras",Carrera.class);
+        
+        Carrera carrera=coleccionPilotos.find(eq("nombre",nombrePremio)).first();
+        carrera.setFecha(new Date());
+        
+        Document doc=new Document("_id",carrera.getId());
+        coleccionPilotos.findOneAndReplace(doc, carrera);        
+	}
+
+	private static void sumarPuntosPilotos() {
+		//Consulta 8: Suma los puntos de todos los pilotos\r\n"
+		crearBaseDatos();
+		MongoCollection<Piloto> coleccionPilotos=database.getCollection("pilotos",Piloto.class);
+		int suma=0;
+		for (Piloto piloto : coleccionPilotos.find()) {
+			suma+=piloto.getPuntos();
+		}		
+		 System.out.println("Total de puntos: " + suma);		
+	}
+
+	private static void muestraPilotosCarrera() {
+		//Consulta 7: Muestra todos los pilotos que han ganado al menos una carrera
+		crearBaseDatos();
+		MongoCollection<Piloto> coleccionPilotos=database.getCollection("pilotos",Piloto.class);
+		
+		for (Piloto piloto : coleccionPilotos.find(gt("puntos",0))) {
+			System.out.println(piloto.toString());
+		}
+	}
+
+
+	private static void eliminaEquipoyPilotos() {
+		//Consulta 6: Elimina un equipo y todos sus pilotos
+		crearBaseDatos();
+		String equipo=pedirString("Introduce el equipo a eliminar");
+
+		MongoCollection<Equipo> coleccionEquipos=database.getCollection("equipos",Equipo.class);	
+		
+		Equipo equipoeliminado=coleccionEquipos.findOneAndDelete(eq("nombre",equipo));
+
+		System.out.println("Equipo eliminado: " + equipoeliminado);
+	}
+
+
+	private static void actualizarPuntos() {
+		//Consulta 5: Actualiza los puntos de un piloto después de ganar la carrera (una victoria supone ganar 25 puntos)
+		crearBaseDatos();
+		
+		String nombre=pedirString("Introduce el nombre del piloto");
+		
+		MongoCollection<Piloto> coleccionPilotos=database.getCollection("pilotos",Piloto.class);
+		Piloto piloto=(Piloto) coleccionPilotos.find(eq("nombre",nombre)).first();
+		piloto.aumentarPuntos(25);
+		
+		Document doc=new Document("_id",piloto.getId());
+		coleccionPilotos.findOneAndReplace(doc, piloto);
+		
+	}
+
+
+	private static void mostrarPilotosPuntos() {
+		//Consulta 4: Muestra todos los pilotos ordenados por puntos de mayor a menor.
+		crearBaseDatos();
+		
+		MongoCollection<Piloto> coleccionPilotos=database.getCollection("pilotos",Piloto.class);
+		
+		FindIterable<Piloto> lista=coleccionPilotos.find().sort(descending("puntos"));
+		
+		for (Piloto piloto : lista) {
+			System.out.println(piloto.toString());
+		}
+		
+	}
+
+	private static void mostrarInfoCarrera() {
+		crearBaseDatos();
+		MongoCollection<Carrera> coleccionCarrera=database.getCollection("carreras",Carrera.class);
+		
+		String carrera_n=pedirString("Introduce una carrera");
+		for (Carrera carrera : coleccionCarrera.find(eq("nombre",carrera_n))) {
+			System.out.println(carrera.toString());
+		}
+	}
+	private static void mostrarPilotosMercedes() {
+		crearBaseDatos();	
+		MongoCollection<Piloto> colPilotos=database.getCollection("pilotos",Piloto.class);
+		
+		for (Piloto piloto : colPilotos.find(eq("equipo.nombre", "Mercedes"))) {			
+				System.out.println(piloto.toString());			
+		}
+	}
+	private static void mostrarEquiposF1() {
+		crearBaseDatos();
+		
+		MongoCollection<Equipo> coleccionEquipos=database.getCollection("equipos",Equipo.class);
+		for (Equipo equipo : coleccionEquipos.find()) {
+			System.out.println(equipo.toString());
+		}
+		
+	}
+
+
+	private static void crearColeccionCarreras() {
+		//Crea una colección carreras que almacene información sobre carreras de F1.\r\n"
+		//Se desea almacenar: nombre del gran premio, la fecha y el ganador. Añade dos ejemplos.
+		crearBaseDatos();
+		MongoCollection<Carrera> coleccionCarreras=database.getCollection("carreras",Carrera.class);
+		MongoCollection<Piloto> coleccionPilotos=database.getCollection("pilotos",Piloto.class);
+		
+		Piloto piloto1=null;
+		Piloto piloto2=null;
+		for (Piloto piloto : coleccionPilotos.find()) {
+			if (piloto.getNombre().equals("Lewis Hamilton")) {
+				piloto1=piloto;
+			}else if (piloto.getNombre().equals("Sebastian Vettel")) {
+				piloto2=piloto;
+			}
+		}
+		Carrera carrera1 = new Carrera(new ObjectId(), "Gran Premio de España", new Date(2023, 5, 1),piloto1);
+        Carrera carrera2 = new Carrera(new ObjectId(), "Gran Premio de Italia", new Date(2023, 6, 1),piloto2);
+        
+        List<Carrera> insercionCarreras=new ArrayList<>(Arrays.asList(carrera1,carrera2));
+        
+        try {
+            coleccionCarreras.insertMany(insercionCarreras);
+        }catch (Exception e){
+            System.out.println("Hubo un problema en la introducción de los valores");
+        }
+	}
+
+
+	private static void crearColeccionPilotos() {
+		//.Crea una colección pilotos que almacene:
+		//el nombre, la nacionalidad, el nombre del equipo y los puntos de un piloto de F1 y añade dos ejemplos
+		crearBaseDatos();
+		MongoCollection<Piloto> coleccionPilotos=database.getCollection("pilotos",Piloto.class);
+		MongoCollection<Equipo> coleccionEquipos=database.getCollection("equipos",Equipo.class);
+		
+		Equipo equipo1 = null, equipo2 = null;
+        for (Equipo equipo: coleccionEquipos.find()){
+            if (equipo.getNombre().equals("Mercedes"))
+                equipo1 = equipo;
+            else if(equipo.getNombre().equals("Ferrari"))
+                equipo2 = equipo;
+        }
+        
+        Piloto piloto1 = new Piloto(new ObjectId(), "Lewis Hamilton", "Británico", equipo1, 100);
+        Piloto piloto2 = new Piloto(new ObjectId(), "Sebastian Vettel", "Aleman", equipo2, 80);
+
+        List<Piloto> inserccionPilotos=new ArrayList<>(Arrays.asList(piloto1,piloto2));
+        
+        try {
+            coleccionPilotos.insertMany(inserccionPilotos);
+        }catch (Exception e){
+            System.out.println("Hubo un problema en la introducción de los valores");
+        }
+	}
+
+
+	private static void crearColeccion() {
+		/*2.Crear una colección equipos que almacene: el nombre, el país y el año de fundación \r\n"
+		    de los equipos de F1 y añade dos ejemplos*/
+	
+		crearBaseDatos();
+		MongoCollection<Equipo> coleccionEquipos=database.getCollection("equipos",Equipo.class);
+		Equipo equipo1 = new Equipo(new ObjectId(), "Mercedes", "Alemania", 2010);
+	    Equipo equipo2 = new Equipo(new ObjectId(), "Ferrari", "Italia", 1929);
+
+	    List<Equipo> insercionEquipos = new ArrayList<>(Arrays.asList(equipo1, equipo2));
+	    try {
+            coleccionEquipos.insertMany(insercionEquipos);
+        }catch (Exception e){
+            System.out.println("Hubo un problema en la introducción de los valores");
+        }
+		
+	}
+	private static Document crearDocumento(HashMap<String, String> parametrosPedido) {
+		Document document=new Document();
+		for (Map.Entry<String, String> entry : parametrosPedido.entrySet()) {
+			if (entry.getValue().equalsIgnoreCase("int")) {
+				document.append(entry.getKey(), pedirInt("Introduce el valor del campo:"+entry.getKey()));
+				
+			}else if(entry.getValue().equalsIgnoreCase("string")){
+                document.append(entry.getKey(), pedirString("Introduzca el valor del campo: " + entry.getKey()));
+
+            }else if(entry.getValue().equalsIgnoreCase("double")){
+                document.append(entry.getKey(), pedirDouble("Introduzca el valor del campo: " + entry.getKey()));
+
+            }else if(entry.getValue().equalsIgnoreCase("boolean")){
+                String entrega = pedirString("Introduzca el valor del campo: " + entry.getKey());
+                document.append(entry.getKey(), entrega.equalsIgnoreCase("si"));
+            }
+		}
+		return document;
+	}
+
+
+	private static void crearBaseDatos() {
+		if (database==null) {
+			database=mongoClient.getDatabase("F1DB2");
+		}
+			
+	}
+
+
+	private static int pedirInt(String mensaje) {
+        System.out.println(mensaje);
+        while(true) {
+            try {
+                return sc.nextInt();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    private static String pedirString(String mensaje){
+        System.out.println(mensaje);
+        return sc.next();
+    }
+    private static Object pedirDouble(String mensaje) {
+		System.out.println(mensaje);
+        while(true) {
+            try {
+                return Double.parseDouble(sc.next());
+            } catch (Exception ignored) {
+            }
+        }
+
+	}
+    
+}

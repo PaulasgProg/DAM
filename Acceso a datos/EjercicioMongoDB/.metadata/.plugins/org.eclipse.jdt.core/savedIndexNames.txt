@@ -1,0 +1,7 @@
+INDEX VERSION 1.134+C:\Users\Paula\OneDrive\Escritorio\TSDAM\2ºDAM\AD - Acceso a datos\UD6\EjercicioMongoDB\.metadata\.plugins\org.eclipse.jdt.core
+4185753234.index
+1865797976.index
+1618269992.index
+2390406660.index
+393471934.index
+2020588225.index

@@ -1,0 +1,96 @@
+use trabajadores
+db.trabajadores.drop();
+db.trabajadores.insert({nombre: {nomb:"Alicia",ape1:"Ramos", ape2:"Martín"},
+                        direccion: {población: "Madrid", calle : "Avda Toledo 10"},
+						salario: 1200,
+						oficios:["Profesora", "Analista"],
+						primas: [20,30,40],
+						edad:50
+						})
+						
+db.trabajadores.insert({nombre: {nomb:"Juan",ape1:"Gil", ape2:"Sánchez"},
+                        direccion: {población: "Madrid", calle : "Mayor 12"},
+						salario: 1400,
+						oficios:["Programador", "Analista"],
+						primas: [120,130,40],
+						edad: 30
+						})
+
+db.trabajadores.insert({nombre: {nomb:"Raquel",ape1:"García", ape2:"del Amo"},
+                        direccion: {población: "Toledo", calle : "Ocaña 22"},
+						salario: 1500,
+						oficios:["Profesor"],
+						primas: [60, 30, 80],
+						edad: 45
+						})
+db.trabajadores.insert({nombre: {nomb:"Fernando",ape1:"Romo", ape2:"Pérez"},
+                        direccion: {población: "Talavera", calle : "Las cañas 2"},
+						salario: 1300,
+						oficios:["Profesor", "Representante"],
+						edad: 43
+						})
+db.trabajadores.insert({nombre: {nomb:"María",ape1:"Suárez", ape2:"Verdes"},
+                        direccion: {población: "Toledo", calle : "Av Madrid 32"},
+						salario: 1600,
+						oficios:["Profesor", "Contable"],
+						primas: [30, 70, 80],
+						edad: 55
+						})	
+
+db.trabajadores.insert({nombre: {nomb:"Santiago",ape1:"Gómez", ape2:"Corregidor"},
+                        direccion: {población: "Toledo", calle : "Av Madrid 32"},
+						salario: 1600,
+						edad: 55
+						})	
+
+1.Visualizar la edad media, la media de salario y el número de trabajadores qeu hayan tenido una prima de 30 o de 80.
+db.trabajadores.aggregate([
+    {$match:{
+        "primas":{$in:[30,80]}}
+    },
+    {$group:
+        {
+            _id:"Trabajadores",
+            mediaEdad:{$avg:"$edad"},
+            mediaSalario:{$avg:"$salario"}, 
+            numeroTrabajadores:{$sum:1}
+        }
+    }
+])
+
+2.Visualizar por poblacion el número de trabajadores, el salario medio y el salario máximo.
+
+db.trabajadores.aggregate( [
+	{ $group: {
+			_id:"$direccion.población", 
+			numeroTrabajadores:{$sum:1}, 
+			mediaSalario:{$avg:"$salario"},
+			maximoSalario:{$max:"$salario"}}
+	}
+])
+
+3.Visualizar el nombre, ape1 y ape2 del empleado que tiene el salario máximo.
+db.trabajadores.aggregate([
+	{$sort:{salario:-1}},
+	{$group:
+		{
+			_id:"EmpleadoMaximoSalario",
+			nombre:{$first:"$nombre.nomb"},
+			apellido1:{$first:"$nombre.ape1"}, 
+			apellido2:{$first:"$nombre.ape2"}}
+	}
+])
+
+4.A partir de la consulta anterior, obten ahora el nombre, ap1 y ap2 y salario del empleado que tiene máximo salario por cada población.
+db.trabajadores.aggregate([
+	{$sort:{salario:-1}},
+	{$group:
+		{
+			_id:"$direccion.población",
+			salario:{$first:"$salario"},
+			nombre:{$first:"$nombre.nomb"},
+			apellido1:{$first:"$nombre.ape1"}, 
+			apellido2:{$first:"$nombre.ape2"}}
+	}
+])
+

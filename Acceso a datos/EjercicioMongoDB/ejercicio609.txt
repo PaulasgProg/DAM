@@ -1,0 +1,42 @@
+1. Visualizar los libros que sean del tema UML.
+
+db.libros.find({temas:"UML"});
+
+2. Visualizar los libros de la editorial Garceta, con pvp entre 20 y 25, ambos incluidos, y que tengan el tema SOCKET.
+
+db.libros.find(
+    {
+        editorial:"Garceta",
+        pvp:{
+            $in: [20,21,22,23,24,25]
+        },
+        temas:"SOCKET"
+    }
+);
+
+3. Agregar el tema SOCKET a los libros que no lo tengan.
+
+db.libros.update(
+    {
+        temas:{
+            $exists:true
+        }
+    },
+    {
+        $addToSet:{
+            temas: "SOCKET"
+        }
+    },
+    { multi: true }
+    );
+
+4. Bajar en 5 el precio de los libros de la editorial Garceta.
+
+db.libros.update({editorial:"Garceta"},
+    {$inc: {pvp:5}});
+
+5. Devuelve los libros de Garceta cuyo precio sea mayor a 25 y sean de los temas UML o Neodatis.
+
+db.libros.find({editorial: "Garceta",
+    pvp: { $gt: 25 },
+    temas: { $in: ["UML", "Neodatis"]})};

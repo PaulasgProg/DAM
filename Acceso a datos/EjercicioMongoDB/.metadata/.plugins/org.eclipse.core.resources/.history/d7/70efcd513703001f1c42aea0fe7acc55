@@ -1,0 +1,265 @@
+package ejercicio613;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
+
+import org.bson.Document;
+
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Accumulators;
+import com.mongodb.client.model.Aggregates;
+import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
+
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Projections.fields;
+import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Sorts.ascending;
+import static com.mongodb.client.model.Sorts.descending;
+import static com.mongodb.client.model.Updates.inc;
+
+public class App {
+
+	static Scanner sc;
+	static MongoClient mongoClient;
+	static MongoDatabase database= null;
+	private static MongoCollection<Document> coleccion;
+	
+	public static void main(String[] args) {
+		sc=new Scanner(System.in);
+		mongoClient=MongoClients.create("mongodb+srv://paulasotelo99:abc123.@cluster0.rh5crpr.mongodb.net/");
+		
+		int option;
+		do {
+			option=pedirInt("1.Crea una base de datos llamada empresa y una colección llamada empleados.\r\n"
+					+ "2.Añade los siguientes documentos\r\n"
+					+ "3.Muestra todos los empleados ordenados por salario.\r\n"
+					+ "4.Muestra el nombre de los empleados de los departamentos 10 y 20. "
+					+ "\r\n Debe aparecer solo el nombre del empleado y el departamento.\r\n"
+					+ "5.Muestra los empleados con salario > 1400 y puesto de Analista.\r\n"
+					+ "6.Incrementa el salario de los analistas en 100 euros.\r\n"
+					+ "7.Borra el empleado número 2.\r\n"
+					+ "8.Muestra los empleados cuyo nombre empieza por A.\r\n"
+					+ "9.Muestra la suma de los salarios de los empleados cuyo nombre empieza por A.\r\n"
+					+ "10.Obtén para cada departamento, el número de empleados, el salario máximo y el nombre del empleado con el salario máximo.");
+			switch (option) {
+			case 1://Crea una base de datos llamada empresa y una colección llamada empleados
+				crearBasedeDatos();
+				crearColeccion();
+				break;
+
+			case 2:
+				anhadirDatos();
+				break;
+			case 3:
+				empleadosPorSalario();
+				break;
+			case 4:
+				empleadosDep10y20();
+				break;
+			case 5:
+				empleadosSalarioAnalista();
+				break;
+			case 6:
+				incrementarSalarioAnalistas();
+				break;
+			case 7:
+				borrarEmpleado();
+				break;
+			case 8:
+				empleadosPorA();
+				break;
+			case 9:
+				sumaSalariosEmpleados();
+				break;
+			default:
+				break;
+			}
+		} while (option!=9);
+		
+	}
+	
+	private static void sumaSalariosEmpleados() {
+		crearColeccion();
+		AggregateIterable<Document> aggDoc=coleccion.aggregate(
+				Arrays.asList(
+						Aggregates.match(regex("nombre","^A")),
+						Aggregates.group("salario", Accumulators.sum("salarioTotal", "$salario")))
+				);
+				
+		for (Document document : aggDoc) {
+			 System.out.println(document);
+		}
+		
+	}
+
+	private static void empleadosPorA() {
+		crearColeccion();
+		FindIterable<Document> iterDoc=coleccion.find(regex("nombre", "^A"))
+				.projection(fields(include("nombre","puesto")));
+		
+		for (Document document : iterDoc) {
+			System.out.println(document);
+		}
+	}
+
+	private static void borrarEmpleado() {
+		crearColeccion();
+		
+		int num=pedirInt("empleado a eliminar");
+		DeleteResult dr=coleccion.deleteOne(new Document("empN",1));
+		
+
+        if(dr.getDeletedCount() > 0){
+            System.out.println("Actualizacion correcta. " + dr.getDeletedCount() + " documentos actualizados.");
+        }else{
+            System.out.println("No se ha actualizado ningún documento");
+        }
+		
+	}
+
+	private static void incrementarSalarioAnalistas() {
+		crearColeccion();
+		int cantidad=pedirInt("Introduce la cantidad del aumento");
+		UpdateResult ur=coleccion.updateMany(new Document("puesto","Analista"), inc("salario", cantidad));
+		
+		if(ur.getMatchedCount() > 0){
+            System.out.println("Actualizacion correcta. " + ur.getMatchedCount() + " documentos actualizados.");
+        }else{
+            System.out.println("No se ha actualizado ningún documento");
+        }
+		
+	}
+
+	private static void empleadosSalarioAnalista() {
+		crearColeccion();
+		FindIterable<Document> iterDoc=coleccion.find(and(gt("salario",1400),new Document("puesto","Analista")))
+				.projection(fields(include("nombre","salario","puesto")));
+		
+		for (Document document : iterDoc) {
+			System.out.println(document);
+		}
+	}
+
+	private static void empleadosDep10y20() {
+		crearColeccion();
+		FindIterable<Document> iterDoc=coleccion.find(
+				or(new Document("departamento",20),new Document("departamento",10)))
+				.projection(fields(include("nombre","departamento")));
+		
+		for (Document document : iterDoc) {
+			System.out.println(document);
+		}
+		
+	}
+
+	private static void empleadosPorSalario() {
+		crearColeccion();
+		FindIterable<Document> iterDoc=coleccion.find().sort(descending("salario"));
+		
+		for (Document document : iterDoc) {
+			System.out.println(document);
+		}
+		
+	}
+
+	private static void anhadirDatos() {//Añade los siguientes documentos
+		
+		if (database==null) {
+			crearBasedeDatos();
+			crearColeccion();
+		}
+		ArrayList<Document> listaDocumentos = new ArrayList<>();
+        listaDocumentos.add(new Document("empN", 1)
+                .append("nombre", "Juan")
+                .append("departamento", 10)
+                .append("salario", 1000)
+                .append("fechaIncorporacion", "10/10/1999")
+                .append("puesto", "Tecnico"));
+
+        listaDocumentos.add(new Document("empN", 2)
+                .append("nombre", "Alicia")
+                .append("departamento", 10)
+                .append("salario", 1400)
+                .append("fechaIncorporacion", "07/08/2000")
+                .append("puesto", "Profesora"));
+
+        listaDocumentos.add(new Document("empN", 3)
+                .append("nombre", "María Jesus")
+                .append("departamento", 20)
+                .append("salario", 1500)
+                .append("fechaIncorporacion", "05/01/2005")
+                .append("puesto", "Analista")
+                .append("comision", 100));
+
+        listaDocumentos.add(new Document("empN", 4)
+                .append("nombre", "Alberto")
+                .append("departamento", 20)
+                .append("salario", 1100)
+                .append("fechaIncorporacion", "15/11/2001")
+                .append("puesto", "Tecnico"));
+
+        listaDocumentos.add(new Document("empN", 5)
+                .append("nombre", "Fernando")
+                .append("departamento", 30)
+                .append("salario", 1300)
+                .append("fechaIncorporacion", "20/11/1999")
+                .append("puesto", "Analista")
+                .append("comision", 200));
+        
+        try {
+			coleccion.insertMany(listaDocumentos);
+		} catch (Exception e) {
+			System.out.println("Hubo un problema en la introducción de los valores");
+		}
+		
+	}
+
+	private static void crearColeccion() {
+		if (database==null) {
+			database=mongoClient.getDatabase("empresa");
+		}
+		try {
+			coleccion=database.getCollection("empleados");
+		} catch (Exception e) {
+			database.createCollection("empleados");
+			coleccion=database.getCollection("empleados");
+		}		
+	}
+	private static void crearBasedeDatos() {
+		if (database==null) {
+			database=mongoClient.getDatabase("empresa");
+		}	
+	}
+
+	private static int pedirInt(String mensaje) {
+        System.out.println(mensaje);
+        while(true) {
+            try {
+                return sc.nextInt();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    private static String pedirString(String mensaje){
+        System.out.println(mensaje);
+        return sc.next();
+    }
+    private static Object pedirDouble(String mensaje) {
+		System.out.println(mensaje);
+        while(true) {
+            try {
+                return Double.parseDouble(sc.next());
+            } catch (Exception ignored) {
+            }
+        }
+
+	}
+}

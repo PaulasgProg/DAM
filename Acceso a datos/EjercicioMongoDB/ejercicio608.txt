@@ -1,0 +1,131 @@
+1. Crea una base de datos llamada liga.
+
+use liga;
+
+2. Crea una colección llamada equipos.
+
+db.createCollection("equipos").
+
+3. Añade tres equipos. La estructura de cada equipo debe ser la siguiente:
+
+Nombre
+Entrenador (persona)
+Jugadores (lista de personas)
+Ciudad
+Cada persona debe tener:
+
+idPersonal
+nombre
+fechaNacimiento
+dirección (de tipo Dirección)
+teléfono
+Cada dirección debe tener:
+
+calle
+codigoPostal
+ciudad
+
+db.equipos.insertMany(
+    [
+        {
+            nombre: 'Celta',
+            entrenador: {
+                personalId: '11111111A',
+                nombre: 'Pepe Agulla',
+                fecha_nacimiento: 1990,
+                direccion:{
+                    calle: 'Urzaiz, 50',
+                    codPostal: '36940',
+                    ciudad: 'Vigo'
+                }
+            },
+            jugadores: [
+                {
+                    personalId: '22222222B',
+                    nombre: 'Luis Fernandez',
+                    fecha_nacimiento: 1998,
+                    direccion:{
+                        calle: 'Castrelos, 150',
+                        codPostal: '36941',
+                        ciudad: 'Vigo'
+                    }
+                },
+                {
+                    personalId: '33333333C',
+                    nombre: 'Tomas Lopez',
+                    fecha_nacimiento: 2000,
+                    direccion:{
+                        calle: 'Camelias, 50',
+                        codPostal: '36942',
+                        ciudad: 'Vigo'
+                    }
+                }
+            ],
+            ciudad: 'Vigo'
+        },
+        {
+            nombre: 'Compos',
+            entrenador: {
+                personalId: '12121212A',
+                nombre: 'Laura Agulla',
+                fecha_nacimiento: 1990,
+                direccion:{
+                    calle: 'Urzaiz, 50',
+                    codPostal: '36940',
+                    ciudad: 'Santiago'
+                }
+            },
+            jugadores: [
+                {
+                    personalId: '34343434E',
+                    nombre: 'Ana Fernandez',
+                    fecha_nacimiento: 1998,
+                    direccion:{
+                        calle: 'Castrelos, 150',
+                        codPostal: '36941',
+                        ciudad: 'Santiago'
+                    },
+                    telefono: "76545678"
+                },
+                {
+                    personalId: '33333333C',
+                    nombre: 'Carme Lopez',
+                    fecha_nacimiento: 2000,
+                    direccion:{
+                        calle: 'Camelias, 50',
+                        codPostal: '36942',
+                        ciudad: 'Santiago'
+                    },
+                    telefono: "232323232"
+                }
+            ],
+            ciudad: 'Santiago'
+        }
+    ]
+);
+4. Realiza una consulta que muestre la información de todos los equipos.
+
+db.equipos.find().pretty();
+
+5. Realiza una consulta que muestre los equipos de una ciudad específica.
+
+db.equipos.find({ciudad: "Vigo"}).pretty();
+
+6.Realiza una consulta que muestre los datos del equipo de un jugador con un idPersonal determinado.
+
+db.equipos.find(
+    {"jugadores.personalId": "34343434E"}
+).pretty();
+
+7.Modifica la ciudad de alguno de los equipos.
+
+db.equipos.updateMany(
+    { nombre: "Celta" },
+    {$set: {ciudad: "Coruña" } }
+);
+8.Modifica el teléfono de un jugador determinado.
+
+ db.equipos.updateMany(
+    { "jugadores.personalId": "34343434E" },
+    { $set: { "jugadores.$.telefono" : "981838383"} } 
+);

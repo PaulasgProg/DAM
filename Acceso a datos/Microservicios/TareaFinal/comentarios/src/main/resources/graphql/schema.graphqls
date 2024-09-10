@@ -1,0 +1,29 @@
+type Mutation{
+    crearComentario(comentario: ComentarioInput, username: String, password: String): ComentarioDTO
+    eliminarComentarios: String
+    eliminarComentarioDeUsuario(idComentario: String, username: String, password: String): String
+}
+
+type Query{
+    listarComentariosHotel(nombreHotel:String,username:String,password:String):[ComentarioDTO]
+    listarComentariosUsuario(username:String,password:String):[ComentarioDTO]
+    mostrarComentarioUsuarioReserva(idReserva:Int,username:String,password:String):[ComentarioDTO]
+    puntuacionMediaHotel(nombreHotel:String,username:String,password:String):Float
+    puntuacionesMediasUsuario(username:String,password:String):Float
+    checkReserva(comentario:ComentarioInput,username:String,password:String):Boolean
+    existeComentario(comentario:ComentarioInput,username:String,password:String):Boolean
+}
+
+input ComentarioInput{
+    nombreHotel:String,
+    reservaId:Int,
+    puntuacion:Float,
+    comentario:String
+}
+
+type ComentarioDTO {
+    nombreHotel: String,
+    reservaId: Int,
+    puntuacion: Float,
+    comentario: String,
+}

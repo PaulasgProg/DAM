@@ -1,0 +1,77 @@
+type Query{
+    consulta1:[Consulta1DTO]
+    consulta2:[Libro]
+    consulta3:[Consulta7DTO]
+    consulta4 : [Consulta4DTO]
+    consulta5 : [Libro]
+    consulta6 : [Consulta6DTO]
+    consulta7 : [Consulta7DTO]
+    consulta8(fecha1 : String, fecha2 : String) : [Consulta8DTO]
+    consulta9(id : Int) : [Consulta9DTO]
+}
+type Mutation{
+    cargarDatos : String
+}
+type Libro{
+    libro_id : Int,
+    titulo : String,
+    autor : String,
+    ano_publicacion : Int,
+    listaPrestamo : [Prestamo],
+}
+
+type Prestamo{
+    id_prestamo : Int,
+    fecha_prestamo : String,
+    fecha_devolucion : String,
+    socio : Socio,
+    libro : Libro,
+}
+
+type Socio{
+    socio_id : Int,
+    nombre : String,
+    direccion : String,
+    fecha_inscripcion : String,
+    listaPrestamos : [Prestamo],
+}
+
+
+type Consulta1DTO{
+    libro_id : Int,
+    titulo : String,
+    autor : String,
+    ano_publicacion : Int,
+    nombre : String,
+    direccion : String,
+}
+
+
+type Consulta7DTO{
+    titulo : String,
+    total : Float
+}
+
+type Consulta4DTO{
+    nombre : String,
+    fechDevolucion : String
+}
+
+type Consulta6DTO{
+    idSocio : Int,
+    nombre : String,
+    fechDevolucion : Float
+}
+
+type Consulta8DTO{
+    titulo : String,
+    fecha_prestamo : String,
+    fecha_devolucion : String
+}
+type Consulta9DTO{
+    titulo : String,
+    fecha_prestamo : String,
+    fecha_devolucion : String
+    nombre : String
+}
+

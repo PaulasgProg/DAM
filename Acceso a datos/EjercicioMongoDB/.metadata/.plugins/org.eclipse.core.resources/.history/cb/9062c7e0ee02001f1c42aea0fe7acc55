@@ -1,0 +1,175 @@
+package ejercicio611;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+import org.bson.Document;
+
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import static com.mongodb.client.model.Filters.gt;
+
+public class App {;
+	
+	static Scanner sc;
+	static MongoClient mongoClient;
+	static MongoDatabase database=null;
+    private static MongoCollection<Document> coleccion;
+
+	public static void main(String[] args) {
+		sc=new Scanner(System.in);
+		mongoClient=MongoClients.create("mongodb+srv://paulasotelo99:abc123.@cluster0.rh5crpr.mongodb.net/");
+		int opcion=0;
+		do {
+			opcion = pedirInt("1. Crear base de datos 'gestión' y colección 'pedidos'\n" +
+                    "2. Añadir nuevo pedido\n" +
+                    "3. Consultar líneas de pedido con un determinado número de productos\n" +
+                    "4. Salir");
+			
+			switch (opcion) {
+			case 1:
+				crearBaseDatos();
+				crearColeccion();
+				break;
+			case 2:
+				anhadirDocumento();
+				break;
+			case 3:
+				consultaLineas();
+				
+				break;
+
+			default:
+				break;
+			}
+		} while (opcion!=5);
+		
+	}
+	
+	
+	private static void consultaLineas() {
+		
+		String numeroProductos = pedirString("Introduzca el número de productos a buscar");
+		Document docFiltro=new Document("lineaPedido.numeroUnidades",numeroProductos);
+		FindIterable<Document> busqueda=coleccion.find(gt("lineaPedido.numeroUnidades",numeroProductos));
+		
+		for (Document document : busqueda) {
+			System.out.println(document);
+		}
+		
+	}
+
+
+	private static void anhadirDocumento() {
+		if (database==null) {
+			crearBaseDatos();
+			crearColeccion();
+		}
+		HashMap<String, String> parametrosPedido=new HashMap<>();
+		//Pedido: fecha, nombre cliente, líneas de pedido, precio total, entregado (booleano).
+		parametrosPedido.put("fecha", "date");
+		parametrosPedido.put("nombre", "String");
+		parametrosPedido.put("precio", "double");
+		parametrosPedido.put("entregado", "boolean");
+		
+		//Línea de pedido: productos, número de unidades, precio total.
+		HashMap<String, String> parametrosLineaProducto = new HashMap<>();
+	    parametrosLineaProducto.put("numeroUnidades", "int");
+	    parametrosLineaProducto.put("precioTotal", "double");
+
+	    //Producto: nombre, descripción, imagen, precio.
+	    HashMap<String, String> parametrosProducto = new HashMap<>();
+	    parametrosProducto.put("nombreProducto", "string");
+	    parametrosProducto.put("descripcion", "string");
+	    parametrosProducto.put("imagen", "string");
+	    parametrosProducto.put("precio", "double");
+	    
+	    Document infoPedido = crearDocumento(parametrosPedido);
+        infoPedido.append("fecha", new Date());
+
+        ArrayList<Document> listaProductos = new ArrayList<>();
+        String seguir;
+        do{
+            Document producto = crearDocumento(parametrosProducto);
+            Document infoProducto = crearDocumento(parametrosLineaProducto);
+            infoProducto.append("producto", producto);
+            listaProductos.add(infoProducto);
+            seguir = pedirString("Seguir introduciendo productos? (si/no)");
+        }while(!seguir.equalsIgnoreCase("no"));
+
+        infoPedido.append("lineaPedido", listaProductos);
+
+        coleccion.insertOne(infoPedido);
+			
+	}
+
+
+	private static Document crearDocumento(HashMap<String, String> parametrosPedido) {
+		Document document=new Document();
+		for (Map.Entry<String, String> entry : parametrosPedido.entrySet()) {
+			if (entry.getValue().equalsIgnoreCase("int")) {
+				document.append(entry.getKey(), pedirInt("Introduce el valor del campo:"+entry.getKey()));
+				
+			}else if(entry.getValue().equalsIgnoreCase("string")){
+                document.append(entry.getKey(), pedirString("Introduzca el valor del campo: " + entry.getKey()));
+
+            }else if(entry.getValue().equalsIgnoreCase("double")){
+                document.append(entry.getKey(), pedirDouble("Introduzca el valor del campo: " + entry.getKey()));
+
+            }else if(entry.getValue().equalsIgnoreCase("boolean")){
+                String entrega = pedirString("Introduzca el valor del campo: " + entry.getKey());
+                document.append(entry.getKey(), entrega.equalsIgnoreCase("si"));
+            }
+		}
+		return document;
+	}
+
+
+	private static Object pedirDouble(String mensaje) {
+		System.out.println(mensaje);
+        while(true) {
+            try {
+                return Double.parseDouble(sc.next());
+            } catch (Exception ignored) {
+            }
+        }
+
+	}
+
+
+	private static void crearColeccion() {
+		database.createCollection("pedidos");
+	}
+
+
+	private static void crearBaseDatos() {
+		if(database==null) {
+			database=mongoClient.getDatabase("gestion");
+		}
+		
+	}
+
+
+	private static int pedirInt(String mensaje) {
+        System.out.println(mensaje);
+        while(true) {
+            try {
+                return sc.nextInt();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    private static String pedirString(String mensaje){
+        System.out.println(mensaje);
+        return sc.next();
+    }
+    
+    
+}

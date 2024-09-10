@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/basic_padding"
+    tools:context=".ejercicios.Ejercicio01Activity">
+
+    <TextView
+        android:id="@+id/tv02"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Teclea tu nombre:"
+        android:layout_marginEnd="@dimen/separacion"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintBottom_toBottomOf="@id/etNombre02"
+        app:layout_constraintEnd_toStartOf="@id/etNombre02"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/etNombre02" />
+
+    <EditText
+        android:id="@+id/etNombre02"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Usuario"
+        android:inputType="textPersonName"
+        android:minHeight="48dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tv02"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <RadioGroup
+        android:id="@+id/rgPerfil"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/separacion"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="@id/tv02"
+        app:layout_constraintTop_toBottomOf="@id/etNombre02">
+
+        <RadioButton
+            android:id="@+id/rbDba"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/separacion"
+            android:text="@string/dba" />
+
+        <RadioButton
+            android:id="@+id/rbDev"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dev" />
+
+        <RadioButton
+            android:id="@+id/rbOr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/guest" />
+    </RadioGroup>
+
+    <CheckBox
+        android:id="@+id/cbDespedida02"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="10dp"
+        android:text="Ver bye"
+        app:layout_constraintEnd_toEndOf="@id/etNombre02"
+        app:layout_constraintTop_toTopOf="@id/rgPerfil" />
+
+    <RadioGroup
+        android:id="@+id/rgDespedida02"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="10dp"
+        android:visibility="gone"
+        android:layout_marginTop="@dimen/separacion"
+        app:layout_constraintEnd_toEndOf="@id/cbDespedida02"
+        app:layout_constraintTop_toBottomOf="@id/cbDespedida02">
+
+        <RadioButton
+            android:id="@+id/rbadios02"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/separacion"
+            android:text="@string/adios" />
+
+        <RadioButton
+            android:id="@+id/rbhastaluego02"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/hasta_luego" />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/button02"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/boton_hola"
+        android:onClick="hola02"
+        android:layout_marginTop="@dimen/separacion"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rgDespedida02" />
+
+    <TextView
+        android:id="@+id/tvSaludo02"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/separacion"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/button02" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

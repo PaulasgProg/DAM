@@ -1,0 +1,72 @@
+package ejercicio616;
+
+import org.bson.types.ObjectId;
+
+public class Equipo {
+	// el nombre, el país y el año de fundación de los equipos de F1 y añade dos ejemplos
+	private ObjectId id;
+	private String nombre;
+	private String pais;
+	private int fundacion;
+	
+	
+	public Equipo() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public Equipo(ObjectId id,String nombre, String pais, int fundacion) {
+		super();
+		this.id=id;
+		this.nombre = nombre;
+		this.pais = pais;
+		this.fundacion = fundacion;
+	}
+
+
+
+	public ObjectId getId() {
+		return id;
+	}
+
+	public void setId(ObjectId id) {
+		this.id = id;
+	}
+
+	public String getNombre() {
+		return nombre;
+	}
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+
+	public String getPais() {
+		return pais;
+	}
+
+	public void setPais(String pais) {
+		this.pais = pais;
+	}
+
+	public int getFundacion() {
+		return fundacion;
+	}
+
+	public void setFundacion(int fundacion) {
+		this.fundacion = fundacion;
+	}
+
+	@Override
+	public String toString() {
+		return "Equipo{"
+				+ "id=" + id +
+				", nombre=" + nombre + 
+				", pais=" + pais + 
+				", fundacion=" + fundacion + 
+				"}";
+	}
+
+
+
+}

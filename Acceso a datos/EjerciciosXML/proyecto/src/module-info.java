@@ -1,0 +1,11 @@
+/**
+ * 
+ */
+/**
+ * 
+ */
+module proyecto {
+	requires baseXJar.fa5b8e0686c750791201ec249bc8f091;
+	requires mongo.java.driver;
+	requires java.xml;
+}

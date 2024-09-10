@@ -1,0 +1,8 @@
+1: Todo está OK
+2: ERROR: se ha dectacto un problema
+1: Todo está OK
+1: Todo está OK
+1: Todo está OK
+2: ERROR: se ha dectacto un problema
+1: Todo está OK
+3: END 

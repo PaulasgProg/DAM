@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">EventosXMLKotlin</string>
+
+    <string name="button21empty">Button 1</string>
+    <string name="button22empty">Button 2</string>
+    <string name="button21">Button 1 (%1$d)</string>
+    <string name="button22">%1$s (%2$d)</string>
+
+    <!-- Placeholders:
+    https://developer.android.com/guide/topics/resources/string-resource#formatting-strings
+    https://stackoverflow.com/questions/5764548/how-to-concatenate-multiple-strings-in-android-xml
+    -->
+
+
+    <string name="no_incremento">Debe definir un incremento numérico para el contador</string>
+    <string name="hasta_luego">Fin Sesión</string>
+    <string name="adios">App cerrada</string>
+    <string name="boton_hola">Entrar</string>
+    <string name="hola">Hola,</string>
+    <string name="dba">DBA.</string>
+    <string name="dev">Dev.</string>
+    <string name="guest">Invitado</string>
+    <string name="no_app_error">App no encontrada para ese Intent</string>
+    <string name="error_nombre">ERROR: Debe introducir un nombre.</string>
+    <string name="error_perfil">ERROR: Debe elegir un perfil.</string>
+    <string name="error_logout">Debe introducir una forma salir</string>
+
+    <string name="has_pulsado">Has pulsado %1$s</string>
+    <string name="hola_desde">Hola desde %1$s</string>
+    <string name="show_pet_button">Ver animalito</string>
+
+    <string-array name="checkboxes_array">
+        <item>CheckBox1</item>
+        <item>CheckBox2</item>
+        <item>CheckBox3</item>
+    </string-array>
+    <plurals name="numberOfViewsAvailable">
+        <!--
+             As a developer, you should always supply "one" and "other"
+             strings. Your translators will know which strings are actually
+             needed for their language. Always include %d in "one" because
+             translators will need to use %d for languages where "one"
+             doesn't mean 1 (as explained above).
+          -->
+        <item quantity="one">%d views found.</item>
+        <item quantity="other">%d views found.</item>
+    </plurals>
+</resources>

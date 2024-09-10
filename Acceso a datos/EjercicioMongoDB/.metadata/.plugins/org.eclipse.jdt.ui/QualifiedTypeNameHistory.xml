@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+    <fullyQualifiedTypeName name="com.mongodb.operation.FindAndDeleteOperation"/>
+    <fullyQualifiedTypeName name="java.lang.Iterable"/>
+    <fullyQualifiedTypeName name="javax.swing.text.html.HTMLDocument.Iterator"/>
+    <fullyQualifiedTypeName name="java.util.Iterator"/>
+    <fullyQualifiedTypeName name="com.mongodb.client.model.Collation"/>
+    <fullyQualifiedTypeName name="java.lang.String"/>
+    <fullyQualifiedTypeName name="java.util.Map"/>
+    <fullyQualifiedTypeName name="java.util.Map.Entry"/>
+    <fullyQualifiedTypeName name="java.util.HashMap"/>
+    <fullyQualifiedTypeName name="java.util.Scanner"/>
+    <fullyQualifiedTypeName name="com.mongodb.client.MongoDatabase"/>
+    <fullyQualifiedTypeName name="org.w3c.dom.html.HTMLFieldSetElement"/>
+    <fullyQualifiedTypeName name="com.mongodb.client.result.UpdateResult"/>
+    <fullyQualifiedTypeName name="com.mongodb.client.result.DeleteResult"/>
+    <fullyQualifiedTypeName name="com.mongodb.client.AggregateIterable"/>
+    <fullyQualifiedTypeName name="com.mongodb.client.model.Aggregates"/>
+    <fullyQualifiedTypeName name="com.mongodb.client.model.Accumulators"/>
+    <fullyQualifiedTypeName name="com.mongodb.ConnectionString"/>
+    <fullyQualifiedTypeName name="org.bson.codecs.pojo.PojoCodecProvider"/>
+    <fullyQualifiedTypeName name="org.bson.codecs.configuration.CodecRegistry"/>
+    <fullyQualifiedTypeName name="com.mongodb.MongoClientSettings"/>
+    <fullyQualifiedTypeName name="com.mongodb.client.MongoClient"/>
+    <fullyQualifiedTypeName name="com.mongodb.client.MongoClients"/>
+    <fullyQualifiedTypeName name="pojos.Equipo"/>
+    <fullyQualifiedTypeName name="org.bson.types.ObjectId"/>
+    <fullyQualifiedTypeName name="pojos.Carrera"/>
+    <fullyQualifiedTypeName name="java.util.ArrayList"/>
+    <fullyQualifiedTypeName name="java.util.Arrays"/>
+    <fullyQualifiedTypeName name="com.mongodb.client.MongoCollection"/>
+    <fullyQualifiedTypeName name="com.mongodb.client.FindIterable"/>
+    <fullyQualifiedTypeName name="pojos.Piloto"/>
+    <fullyQualifiedTypeName name="java.util.List"/>
+    <fullyQualifiedTypeName name="java.util.Date"/>
+    <fullyQualifiedTypeName name="org.bson.Document"/>
+    <fullyQualifiedTypeName name="java.util.TreeMap"/>
+</qualifiedTypeNameHistroy>

@@ -1,0 +1,75 @@
+package pojos;
+
+import org.bson.types.ObjectId;
+
+import ejercicio616.Equipo;
+
+public class Piloto {
+	//el nombre, la nacionalidad, el nombre del equipo y los puntos de un piloto de F1 y añade dos ejemplos
+	private ObjectId id;
+	private String nombre;
+	private String nacionalidad;
+	private Equipo equipo;
+	private int puntos;
+	
+	public Piloto() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	public Piloto(ObjectId id, String nombre, String nacionalidad, Equipo equipo, int puntos) {
+		super();
+		this.id = id;
+		this.nombre = nombre;
+		this.nacionalidad = nacionalidad;
+		this.equipo = equipo;
+		this.puntos = puntos;
+	}
+	public ObjectId getId() {
+		return id;
+	}
+	public void setId(ObjectId id) {
+		this.id = id;
+	}
+	public String getNombre() {
+		return nombre;
+	}
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+	public String getNacionalidad() {
+		return nacionalidad;
+	}
+	public void setNacionalidad(String nacionalidad) {
+		this.nacionalidad = nacionalidad;
+	}
+	public Equipo getEquipo() {
+		return equipo;
+	}
+	public void setEquipo(Equipo equipo) {
+		this.equipo = equipo;
+	}
+	public int getPuntos() {
+		return puntos;
+	}
+	public void setPuntos(int puntos) {
+		this.puntos = puntos;
+	}
+	public void aumentarPuntos(int puntos) {
+		int p=getPuntos();
+		setPuntos(p+puntos);
+	}
+	@Override
+	public String toString() {
+		return "Piloto{"
+				+ "id=" + id + 
+				", nombre=" + nombre + 
+				", nacionalidad=" + nacionalidad + 
+				", equipo=" + equipo
+				+ ", puntos=" + puntos + 
+				"}";
+	}
+	
+	
+
+	
+}

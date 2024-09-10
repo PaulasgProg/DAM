@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:backgroundTint="@android:color/holo_green_light"
+        android:gravity="center"
+        android:isScrollContainer="true"
+        android:keepScreenOn="true"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/button01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@android:color/holo_green_light"
+            android:text="Ej01: Variantes Callback Btn"
+            app:icon="@android:drawable/ic_menu_set_as" />
+
+        <Button
+            android:id="@+id/button02"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ej02: Contadores"
+            app:icon="@android:drawable/btn_star_big_on" />
+
+        <Button
+            android:id="@+id/button03"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ej03: Botón capturador" />
+
+        <Button
+            android:id="@+id/button04"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ej04: Contador complejo"
+            app:icon="@android:drawable/btn_star_big_on" />
+
+        <Button
+            android:id="@+id/button05"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/material_dynamic_tertiary80"
+            android:text="Ej05: CheckBoxes 1" />
+
+        <Button
+            android:id="@+id/button06"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:backgroundTint="@color/material_dynamic_tertiary80"
+            android:text="Ej06: CheckBoxes 2"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/button07"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:backgroundTint="@color/material_dynamic_tertiary80"
+            android:text="Ej07: CheckBoxes 3"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/button08"
+            android:layout_width="wrap_content"
+            android:layout_height="54dp"
+            android:text="Ej08: RadioButtons"
+            app:icon="@android:drawable/presence_online"
+            app:iconTint="@color/teal_200" />
+
+        <Button
+            android:id="@+id/button09"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ej09: Toggle Visibilidad"
+            app:icon="@android:drawable/ic_menu_view"
+            app:iconTint="@color/white" />
+
+        <Button
+            android:id="@+id/buttonEjercicio01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ej1 - Login" />
+
+        <Button
+            android:id="@+id/buttonEjercicio02"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/teal_700"
+            android:text="Ej2-Conversor" />
+
+        <Button
+            android:id="@+id/buttonEjercicioImagen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/blue_light"
+            android:text="Imagen-Web"
+            android:textColor="@color/black"
+            app:icon="@android:drawable/ic_menu_gallery"
+            app:iconTint="@color/black" />
+
+        <Button
+            android:id="@+id/buttonEjercicio03"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/design_default_color_error"
+            android:text="Ej 3 Login con Intents" />
+
+    </LinearLayout>
+</ScrollView>
